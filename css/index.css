@@ -1,0 +1,70 @@
+@font-face {
+  font-family: Line-seed-Rg;
+  src: url(/font/LINESeedJP_TTF_Rg.ttf);
+}
+@font-face {
+  font-family: Line-seed-Th;
+  src: url(/font/LINESeedJP_TTF_Th.ttf);
+}
+@font-face {
+  font-family: Saira-Light;
+  src: url(/font/Saira-Light.ttf);
+}
+.body{
+  background-color: #181818;
+  margin: 0;
+  padding: 0;
+}
+.header{
+  background-color: #00b5ff;
+  display: flex;
+  position: fixed;
+  width: 100%;
+  top: 0;
+}
+.footer{
+  background-color: #000000;
+}
+.header_nav{
+  margin: 0 0 0 auto;
+}
+.header_ul{
+  display: flex;
+  text-align: center;
+  padding-right: 5px;
+}
+.header_li{
+  padding: 0px 10px;
+  flex: 1;
+  border-right: 1px solid #181818;
+  width: 75px;
+}
+.header_li_first{
+  border-left: 1px solid #181818;
+}
+.h-masa18{
+  font-size: 48px;
+  padding: 0px 10px;
+}
+main{
+  margin-top: 88px;
+}
+a{
+  color: #E7E7E7;
+  text-decoration: none;
+}
+ul{
+  padding-left: 0;
+}
+li{
+  list-style: none;
+}
+.Saira{
+  font-family: Saira-Light;
+}
+.Line-Rg{
+  font-family: Line-seed-Rg;
+}
+.Line-Th{
+  font-family: Line-seed-Th;
+}

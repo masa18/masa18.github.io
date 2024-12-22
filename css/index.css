@@ -15,6 +15,47 @@
   margin: 0;
   padding: 0;
 }
+.name{
+  text-align: center;
+  font-size: 96px;
+  display: flex;
+  justify-content: center;
+  height: 96px;
+}
+.role{
+  display: flex;
+  justify-content: center;
+  font-size: 24px;
+}
+.links{
+  display:flex;
+  justify-content: center;
+}
+.youtube{
+  height: 40px;
+  width: auto;
+  margin: 0px 10px;
+}
+.soundcloud{
+  height: 40px;
+  width: auto;
+  margin: 0px 10px;
+}
+.twitter{
+  height: 40px;
+  width: auto;
+  margin: 0px 10px;
+}
+.twitch{
+  height: 40px;
+  width: auto;
+  margin: 0px 10px;
+}
+.niconico{
+  height: 40px;
+  width: auto;
+  margin: 0px 10px;
+}
 .header{
   background-color: #00b5ff;
   display: flex;

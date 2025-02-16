@@ -122,9 +122,9 @@
                     };
                     document.getElementById('expect').innerHTML = '結果: ' + expect + '¥';
                     var profit = point * parseFloat(rate);
-                    document.getElementById('profit').innerHTML = '利益: ' + profit ;
+                    document.getElementById('profit').innerHTML = '利益: ' + profit + '¥';
                     var gain = profit - expect;
-                    document.getElementById('gain').innerHTML = '純利益: ' + gain ;
+                    document.getElementById('gain').innerHTML = '純利益: ' + gain + '¥';
                     if (gain <= 0) {
                         document.getElementById('tf').innerHTML = '収益を見込めません。';
                     } else {

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ガチャ期待値計算機</title>
+    <title>二列リストの行追加・削除</title>
     <style>
         table {
             width: 100%;
@@ -61,14 +61,11 @@
     <p id="tf"></p>
 
     <section>
-    <h3>注意事項</h3>
-    <a>結局は確率です。全てこれの通りに行くわけではありません</a>
-    <br>
-    <a>結果、利益、純利益は一回あたりです</a>
-    <h3>Tips:うまく使う方法</h3>
-    <a>デジリアの場合、デジタルの景品を原価0にすると混ざった状態でも求められます</a>
-    <br>
-    <a>確率が同じものは、同じもの同士で原価をまとめても、結果は同じになります</a>
+        <h3>Tips:うまく使う方法</h3>
+        <a>デジリアの場合、デジタルの景品を原価0にすると混ざった状態でも求められます</a>
+        <br>
+        <a>確率が同じものは、同じもの同士で原価をまとめても、結果は同じになります</a>
+        <br>
     </section>
 
     <script>
@@ -105,30 +102,33 @@
             var rate = document.querySelector('input[name="rate"]:checked').value;
             var expect = 0
             var protest = 0
-            for (let i = 1; i <= rowCount; i++) {
-                var pro = parseFloat(document.getElementById(`pro${i}`).value);
-                protest += pro;
-            };
-            if (protest === 100) {
-                for (let j = 1; j <= rowCount; j++) {
-                    var cost = parseFloat(document.getElementById(`cost${j}`).value);
-                    var pro = parseFloat(document.getElementById(`pro${j}`).value);
-                    var calc = cost * pro / 100;
-                    expect += calc;
-                    console.log("現在の計算結果:" + expect);
-                };
-                document.getElementById('expect').innerHTML = '結果: ' + expect + '¥';
-                var profit = point * parseFloat(rate);
-                document.getElementById('profit').innerHTML = '利益: ' + profit + '¥';
-                var gain = profit - expect;
-                document.getElementById('gain').innerHTML = '純利益: ' + gain + '¥';
-                if (gain <= 0) {
-                    document.getElementById('tf').innerHTML = '収益を見込めません。';
-                } else {
-                    document.getElementById('tf').innerHTML = '収益が見込めます。純利益を参照してください。';
-                }
+            if (isNaN(point) || point <= 0) {
+                alert("一回あたりのptが入力されていない、もしくは0です")
             } else {
-                alert("確率の合計が100ではありません");
+                for (let i = 1; i <= rowCount; i++) {
+                    var pro = parseFloat(document.getElementById(`pro${i}`).value);
+                    protest += pro;
+                };
+                if (protest === 100) {
+                    for (let j = 1; j <= rowCount; j++) {
+                        var cost = parseFloat(document.getElementById(`cost${j}`).value);
+                        var pro = parseFloat(document.getElementById(`pro${j}`).value);
+                        var calc = cost * pro / 100;
+                        expect += calc;
+                    };
+                    document.getElementById('expect').innerHTML = '結果: ' + expect + '¥';
+                    var profit = point * parseFloat(rate);
+                    document.getElementById('profit').innerHTML = '利益: ' + profit ;
+                    var gain = profit - expect;
+                    document.getElementById('gain').innerHTML = '純利益: ' + gain ;
+                    if (gain <= 0) {
+                        document.getElementById('tf').innerHTML = '収益を見込めません。';
+                    } else {
+                        document.getElementById('tf').innerHTML = '収益が見込めます。純利益を参照してください。';
+                    }
+                } else {
+                    alert("確率の合計が100ではありません");
+                }
             }
         }
     </script>

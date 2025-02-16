@@ -1,139 +1,126 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
-  <title>HTMLで計算を行う</title>
-  <script>
-    function multi() {
-      var cost1 = parseFloat(document.getElementById('cost1').value);
-      var pro1 = parseFloat(document.getElementById('pro1').value);
-      var cost2 = parseFloat(document.getElementById('cost2').value);
-      var pro2 = parseFloat(document.getElementById('pro2').value);
-      var cost3 = parseFloat(document.getElementById('cost3').value);
-      var pro3 = parseFloat(document.getElementById('pro3').value);
-      var cost4 = parseFloat(document.getElementById('cost4').value);
-      var pro4 = parseFloat(document.getElementById('pro4').value);
-      var cost5 = parseFloat(document.getElementById('cost5').value);
-      var pro5 = parseFloat(document.getElementById('pro5').value);
-      var cost6 = parseFloat(document.getElementById('cost6').value);
-      var pro6 = parseFloat(document.getElementById('pro6').value);
-      var cost7 = parseFloat(document.getElementById('cost7').value);
-      var pro7 = parseFloat(document.getElementById('pro7').value);
-      var cost8 = parseFloat(document.getElementById('cost8').value);
-      var pro8 = parseFloat(document.getElementById('pro8').value);
-      var cost9 = parseFloat(document.getElementById('cost9').value);
-      var pro9 = parseFloat(document.getElementById('pro9').value);
-      var cost10 = parseFloat(document.getElementById('cost10').value);
-      var pro10 = parseFloat(document.getElementById('pro10').value);
-      var cost11 = parseFloat(document.getElementById('cost11').value);
-      var pro11 = parseFloat(document.getElementById('pro11').value);
-      var cost12 = parseFloat(document.getElementById('cost12').value);
-      var pro12 = parseFloat(document.getElementById('pro12').value);
-      var cost13 = parseFloat(document.getElementById('cost13').value);
-      var pro13 = parseFloat(document.getElementById('pro13').value);
-      var cost14 = parseFloat(document.getElementById('cost14').value);
-      var pro14 = parseFloat(document.getElementById('pro14').value);
-      var cost15 = parseFloat(document.getElementById('cost15').value);
-      var pro15 = parseFloat(document.getElementById('pro15').value);
-      var cost16 = parseFloat(document.getElementById('cost16').value);
-      var pro16 = parseFloat(document.getElementById('pro16').value);
-      var cost17 = parseFloat(document.getElementById('cost17').value);
-      var pro17 = parseFloat(document.getElementById('pro17').value);
-      var cost18 = parseFloat(document.getElementById('cost18').value);
-      var pro18 = parseFloat(document.getElementById('pro18').value);
-      var cost19 = parseFloat(document.getElementById('cost19').value);
-      var pro19 = parseFloat(document.getElementById('pro19').value);
-      var cost20 = parseFloat(document.getElementById('cost20').value);
-      var pro20 = parseFloat(document.getElementById('pro20').value);
-
-      var mult1 = cost1 * pro1 /100;
-      var mult2 = cost2 * pro2 /100;
-      var mult3 = cost3 * pro3 /100;
-      var mult4 = cost4 * pro4 /100;
-      var mult5 = cost5 * pro5 /100;
-      var mult6 = cost6 * pro6 /100;
-      var mult7 = cost7 * pro7 /100;
-      var mult8 = cost8 * pro8 /100;
-      var mult9 = cost9 * pro9 /100;
-      var mult10 = cost10 * pro10 /100;
-      var mult11 = cost11 * pro11 /100;
-      var mult12 = cost12 * pro12 /100;
-      var mult13 = cost13 * pro13 /100;
-      var mult14 = cost14 * pro14 /100;
-      var mult15 = cost15 * pro15 /100;
-      var mult16 = cost16 * pro16 /100;
-      var mult17 = cost17 * pro17 /100;
-      var mult18 = cost18 * pro18 /100;
-      var mult19 = cost19 * pro19 /100;
-      var mult20 = cost20 * pro20 /100;
-
-      var sum = mult1 + mult2 + mult3 + mult4 + mult5 + mult6 + mult7 + mult8 + mult9 + mult10 + mult11 + mult12 + mult13 + mult14 + mult15 + mult16 + mult17 + mult18 + mult19 + mult20;
-      document.getElementById('result').innerHTML = '結果: ' + sum;
-    }
-  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ガチャ期待値計算機</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        section {
+            margin: 10px;
+        }
+    </style>
 </head>
 <body>
-  <h1>期待値計算を行う(単位は省いてくださいね)</h1>
-  <input type="text" id="cost1" placeholder="原価を入力">
-  <input type="text" id="pro1" placeholder="確率(%の時の数字)を入力">
-  <br>
-  <input type="text" id="cost2" placeholder="原価を入力">
-  <input type="text" id="pro2" placeholder="確率(%の時の数字)を入力">
-  <br>
-  <input type="text" id="cost3" placeholder="原価を入力">
-  <input type="text" id="pro3" placeholder="確率(%の時の数字)を入力">
-  <br>
-  <input type="text" id="cost4" placeholder="原価を入力">
-  <input type="text" id="pro4" placeholder="確率(%の時の数字)を入力">
-  <br>
-  <input type="text" id="cost5" placeholder="原価を入力">
-  <input type="text" id="pro5" placeholder="確率(%の時の数字)を入力">
-  <br>
-  <input type="text" id="cost6" placeholder="原価を入力">
-  <input type="text" id="pro6" placeholder="確率(%の時の数字)を入力">
-  <br>
-  <input type="text" id="cost7" placeholder="原価を入力">
-  <input type="text" id="pro7" placeholder="確率(%の時の数字)を入力">
-  <br>
-  <input type="text" id="cost8" placeholder="原価を入力">
-  <input type="text" id="pro8" placeholder="確率(%の時の数字)を入力">
-  <br>
-  <input type="text" id="cost9" placeholder="原価を入力">
-  <input type="text" id="pro9" placeholder="確率(%の時の数字)を入力">
-  <br>
-  <input type="text" id="cost10" placeholder="原価を入力">
-  <input type="text" id="pro10" placeholder="確率(%の時の数字)を入力">
-  <br>
-  <input type="text" id="cost11" placeholder="原価を入力">
-  <input type="text" id="pro11" placeholder="確率(%の時の数字)を入力">
-  <br>
-  <input type="text" id="cost12" placeholder="原価を入力">
-  <input type="text" id="pro12" placeholder="確率(%の時の数字)を入力">
-  <br>
-  <input type="text" id="cost13" placeholder="原価を入力">
-  <input type="text" id="pro13" placeholder="確率(%の時の数字)を入力">
-  <br>
-  <input type="text" id="cost14" placeholder="原価を入力">
-  <input type="text" id="pro14" placeholder="確率(%の時の数字)を入力">
-  <br>
-  <input type="text" id="cost15" placeholder="原価を入力">
-  <input type="text" id="pro15" placeholder="確率(%の時の数字)を入力">
-  <br>
-  <input type="text" id="cost16" placeholder="原価を入力">
-  <input type="text" id="pro16" placeholder="確率(%の時の数字)を入力">
-  <br>
-  <input type="text" id="cost17" placeholder="原価を入力">
-  <input type="text" id="pro17" placeholder="確率(%の時の数字)を入力">
-  <br>
-  <input type="text" id="cost18" placeholder="原価を入力">
-  <input type="text" id="pro18" placeholder="確率(%の時の数字)を入力">
-  <br>
-  <input type="text" id="cost19" placeholder="原価を入力">
-  <input type="text" id="pro19" placeholder="確率(%の時の数字)を入力">
-  <br>
-  <input type="text" id="cost20" placeholder="原価を入力">
-  <input type="text" id="pro20" placeholder="確率(%の時の数字)を入力">
-  <br>
-  <button onclick="multi()">結果を見る</button>
-  <p id="result"></p>
+
+    <h2>赤字にならないための期待値計算機</h2>
+
+    <section name="point">
+        <h3>一回あたりのpt</h3>
+        <input type="number" id="point">
+        <a>pt</a>
+        <br>
+        <h3>利益率の選択(投げられたptに対して何%の収益があるか)</h3>
+        <label><input type="radio" name="rate" value="0.2" checked> 20%</label>
+        <label><input type="radio" name="rate" value="0.25"> 25%</label>
+        <label><input type="radio" name="rate" value="0.3"> 30%</label>
+    </section>
+    <table id="inputTable">
+        <thead>
+            <tr>
+                <th>原価</th>
+                <th>確率(%の時の数字)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><input type="number" id="cost1" name="cost1"></td>
+                <td><input type="number" id="pro1" name="pro1"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <button onclick="addRow()">行を追加</button>
+    <button onclick="removeRow()">行を削除</button>
+    <br>
+    <button onclick="calculation()">計算する</button>
+    <br>
+    <p id="expect"></p>
+    <p id="profit"></p>
+    <p id="gain"></p>
+    <p id="tf"></p>
+
+    <script>
+        let rowCount = 1; // 現在の行数を追跡
+
+        function addRow() {
+            rowCount++; // 行数を増加
+            var table = document.getElementById('inputTable').getElementsByTagName('tbody')[0];
+            var newRow = table.insertRow(table.rows.length);
+            
+            var cell1 = newRow.insertCell(0);
+            var cell2 = newRow.insertCell(1);
+
+            // 1列目: cost + 行番
+            cell1.innerHTML = `<input type="number" id="cost${rowCount}" name="cost${rowCount}">`;
+            
+            // 2列目: pro + 行番
+            cell2.innerHTML = `<input type="number" id="pro${rowCount}" name="pro${rowCount}">`;
+        }
+
+        function removeRow() {
+            var table = document.getElementById('inputTable');
+            var rows = table.rows.length;
+            if (rows > 2) { // ヘッダー除く1行を残す
+                table.deleteRow(rows - 1);
+                rowCount--; // 行数減少
+            } else {
+                alert("1行目の削除はできません。");
+            }
+        }
+
+        function calculation() {
+            var point = parseFloat(document.getElementById('point').value);
+            var rate = document.querySelector('input[name="rate"]:checked').value;
+            var expect = 0
+            var protest = 0
+            for (let i = 1; i <= rowCount; i++) {
+                var pro = parseFloat(document.getElementById(`pro${i}`).value);
+                protest += pro;
+            };
+            if (protest === 100) {
+                for (let j = 1; j <= rowCount; j++) {
+                    var cost = parseFloat(document.getElementById(`cost${j}`).value);
+                    var pro = parseFloat(document.getElementById(`pro${j}`).value);
+                    var calc = cost * pro / 100;
+                    expect += calc;
+                    console.log("現在の計算結果:" + expect);
+                };
+                document.getElementById('expect').innerHTML = '結果: ' + expect;
+                var profit = point * parseFloat(rate);
+                document.getElementById('profit').innerHTML = '利益: ' + profit;
+                var gain = profit - expect;
+                document.getElementById('gain').innerHTML = '純利益: ' + gain;
+                if (gain <= 0) {
+                    document.getElementById('tf').innerHTML = '収益を見込めません。';
+                } else {
+                    document.getElementById('tf').innerHTML = '収益が見込めます。純利益を参照してください。';
+                }
+            } else {
+                alert("確率の合計が100ではありません");
+            }
+        }
+    </script>
+
 </body>
 </html>

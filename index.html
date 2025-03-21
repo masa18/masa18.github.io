@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>アイコン合成ツール</title>
+    <style>
+        #canvas {
+            border: 1px solid #000;
+            max-width: 100%;
+            touch-action: none;
+        }
+        .controls {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h2>アイコンリングつける君</h2>
+    <label>アイコン画像: <input type="file" id="iconInput" accept="image/*"></label>
+    <br>
+    <label>アイコンリング画像: <input type="file" id="ringInput" accept="image/*"></label>
+    <br>
+    <button onclick="mergeImages()">ダウンロード</button>
+    <br>
+    <canvas id="canvas"></canvas>
+    
+    <script>
+        let iconImg = new Image();
+        let ringImg = new Image();
+        let iconLoaded = false;
+        let ringLoaded = false;
+        let iconX = 0, iconY = 0, iconScale = 1;
+        let lastX, lastY;
+        let dragging = false;
+
+        document.getElementById('iconInput').addEventListener('change', function(event) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                iconImg.src = e.target.result;
+            };
+            reader.readAsDataURL(event.target.files[0]);
+            iconImg.onload = () => { iconLoaded = true; drawCanvas(); };
+        });
+        
+        document.getElementById('ringInput').addEventListener('change', function(event) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                ringImg.src = e.target.result;
+            };
+            reader.readAsDataURL(event.target.files[0]);
+            ringImg.onload = () => { ringLoaded = true; drawCanvas(); };
+        });
+        
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.addEventListener('touchstart', startMove);
+        canvas.addEventListener('touchmove', moveIcon);
+        canvas.addEventListener('touchend', stopMove);
+        canvas.addEventListener('mousedown', startMove);
+        canvas.addEventListener('mousemove', moveIcon);
+        canvas.addEventListener('mouseup', stopMove);
+        canvas.addEventListener('mouseleave', stopMove);
+        canvas.addEventListener('wheel', zoomIcon);
+
+        function startMove(e) {
+            const point = e.touches ? e.touches[0] : e;
+            lastX = point.clientX;
+            lastY = point.clientY;
+            dragging = true;
+            e.preventDefault();
+        }
+
+        function moveIcon(e) {
+            if (!dragging) return;
+            const point = e.touches ? e.touches[0] : e;
+            let dx = point.clientX - lastX;
+            let dy = point.clientY - lastY;
+            iconX += dx;
+            iconY += dy;
+            lastX = point.clientX;
+            lastY = point.clientY;
+            drawCanvas();
+            e.preventDefault();
+        }
+
+        function stopMove() {
+            dragging = false;
+        }
+
+        function zoomIcon(e) {
+            const scaleAmount = e.deltaY > 0 ? 0.9 : 1.1;
+            iconScale *= scaleAmount;
+            drawCanvas();
+            e.preventDefault();
+        }
+
+        function drawCanvas() {
+            if (!iconLoaded || !ringLoaded) return;
+            
+            const size = Math.max(ringImg.width, ringImg.height);
+            canvas.width = size;
+            canvas.height = size;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const iconWidth = iconImg.width * iconScale;
+            const iconHeight = iconImg.height * iconScale;
+            ctx.drawImage(iconImg, (size - iconWidth) / 2 + iconX, (size - iconHeight) / 2 + iconY, iconWidth, iconHeight);
+            ctx.drawImage(ringImg, (size - ringImg.width) / 2, (size - ringImg.height) / 2);
+        }
+        
+        function mergeImages() {
+            drawCanvas();
+            const link = document.createElement('a');
+            link.href = document.getElementById('canvas').toDataURL('image/png');
+            link.download = 'merged_icon.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>BPM & FPS Timing Calculator</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f0f4f8;
+      color: #333;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      background-color: #fff;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      font-size: 16px;
+    }
+
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    .results {
+      margin-top: 30px;
+      background: #e9f7fe;
+      padding: 15px;
+      border-radius: 8px;
+    }
+
+    .results p {
+      margin: 8px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>BPM & FPS タイミング計算機</h1>
+  <label for="bpm">BPM（拍数/分）:</label>
+  <input type="number" id="bpm" placeholder="例: 120">
+
+  <label for="fps">FPS（フレーム/秒）:</label>
+  <input type="number" id="fps" placeholder="例: 60">
+
+  <label for="frameNumber">任意のフレーム番号（オプション）:</label>
+  <input type="number" id="frameNumber" placeholder="例: 180（3秒目）">
+
+  <button onclick="calculate()">計算する</button>
+
+  <div class="results" id="results" style="display:none;">
+    <h3>結果:</h3>
+    <p id="beatDuration"></p>
+    <p id="frameInterval"></p>
+    <p id="framesPerBeat"></p>
+    <p id="frameToBeat"></p>
+  </div>
+
+  <script>
+    function calculate() {
+      const bpm = parseFloat(document.getElementById('bpm').value);
+      const fps = parseFloat(document.getElementById('fps').value);
+      const frameNumber = parseInt(document.getElementById('frameNumber').value);
+
+      if (isNaN(bpm) || isNaN(fps) || bpm <= 0 || fps <= 0) {
+        alert('BPMとFPSを正しく入力してください');
+        return;
+      }
+
+      const beatMs = 60000 / bpm;
+      const frameMs = 1000 / fps;
+      const framesPerBeat = beatMs / frameMs;
+
+      document.getElementById('beatDuration').textContent = `1拍の長さ: ${beatMs.toFixed(2)} ms`;
+      document.getElementById('frameInterval').textContent = `1フレームの間隔: ${frameMs.toFixed(2)} ms`;
+      document.getElementById('framesPerBeat').textContent = `1拍に含まれるフレーム数: ${framesPerBeat.toFixed(2)} フレーム`;
+
+      if (!isNaN(frameNumber) && frameNumber >= 0) {
+        const timeAtFrame = frameNumber * frameMs;
+        const beatAtFrame = timeAtFrame / beatMs;
+        document.getElementById('frameToBeat').textContent =
+          `フレーム ${frameNumber} は約 ${beatAtFrame.toFixed(2)} 拍目`;
+      } else {
+        document.getElementById('frameToBeat').textContent = '';
+      }
+
+      document.getElementById('results').style.display = 'block';
+    }
+  </script>
+</body>
+</html>

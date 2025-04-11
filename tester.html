@@ -2,23 +2,19 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>BPM & FPS Timing Calculator</title>
+  <title>BPM & FPS Visual Timing</title>
   <style>
     body {
       font-family: sans-serif;
-      background: #f0f4f8;
-      color: #333;
-      max-width: 600px;
-      margin: 50px auto;
+      background: #f7fafc;
       padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      background-color: #fff;
+      max-width: 800px;
+      margin: auto;
     }
 
     h1 {
       text-align: center;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
 
     label {
@@ -27,91 +23,126 @@
       font-weight: bold;
     }
 
-    input {
+    input, select {
       width: 100%;
       padding: 8px;
-      margin-top: 5px;
       font-size: 16px;
+      margin-top: 5px;
     }
 
     button {
       margin-top: 20px;
-      width: 100%;
       padding: 10px;
       font-size: 16px;
-      background: #007bff;
-      color: #fff;
+      width: 100%;
+      background: #4a90e2;
+      color: white;
       border: none;
       border-radius: 8px;
       cursor: pointer;
     }
 
-    button:hover {
-      background: #0056b3;
+    canvas {
+      margin-top: 30px;
+      width: 100%;
+      background: #fff;
+      border: 1px solid #ccc;
     }
 
     .results {
-      margin-top: 30px;
-      background: #e9f7fe;
-      padding: 15px;
+      margin-top: 20px;
+      background: #e3f2fd;
+      padding: 10px;
       border-radius: 8px;
-    }
-
-    .results p {
-      margin: 8px 0;
     }
   </style>
 </head>
 <body>
-  <h1>BPM & FPS タイミング計算機</h1>
+  <h1>BPM & FPS 可視タイミングツール</h1>
+
   <label for="bpm">BPM（拍数/分）:</label>
   <input type="number" id="bpm" placeholder="例: 120">
 
   <label for="fps">FPS（フレーム/秒）:</label>
   <input type="number" id="fps" placeholder="例: 60">
 
-  <label for="frameNumber">任意のフレーム番号（オプション）:</label>
-  <input type="number" id="frameNumber" placeholder="例: 180（3秒目）">
+  <label for="division">音符の細かさ（分割）:</label>
+  <select id="division">
+    <option value="1">全音符</option>
+    <option value="2">二分音符</option>
+    <option value="4" selected>四分音符</option>
+    <option value="8">八分音符</option>
+    <option value="16">十六分音符</option>
+  </select>
 
-  <button onclick="calculate()">計算する</button>
+  <label for="duration">描画時間（秒）:</label>
+  <input type="number" id="duration" value="4">
 
-  <div class="results" id="results" style="display:none;">
-    <h3>結果:</h3>
-    <p id="beatDuration"></p>
-    <p id="frameInterval"></p>
-    <p id="framesPerBeat"></p>
-    <p id="frameToBeat"></p>
-  </div>
+  <button onclick="drawTimeline()">描画する</button>
+
+  <canvas id="timelineCanvas" width="800" height="200"></canvas>
 
   <script>
-    function calculate() {
+    function drawTimeline() {
       const bpm = parseFloat(document.getElementById('bpm').value);
       const fps = parseFloat(document.getElementById('fps').value);
-      const frameNumber = parseInt(document.getElementById('frameNumber').value);
+      const division = parseInt(document.getElementById('division').value);
+      const duration = parseFloat(document.getElementById('duration').value);
 
-      if (isNaN(bpm) || isNaN(fps) || bpm <= 0 || fps <= 0) {
-        alert('BPMとFPSを正しく入力してください');
+      if (isNaN(bpm) || isNaN(fps) || bpm <= 0 || fps <= 0 || duration <= 0) {
+        alert("すべての値を正しく入力してください");
         return;
       }
 
-      const beatMs = 60000 / bpm;
-      const frameMs = 1000 / fps;
-      const framesPerBeat = beatMs / frameMs;
+      const canvas = document.getElementById('timelineCanvas');
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      document.getElementById('beatDuration').textContent = `1拍の長さ: ${beatMs.toFixed(2)} ms`;
-      document.getElementById('frameInterval').textContent = `1フレームの間隔: ${frameMs.toFixed(2)} ms`;
-      document.getElementById('framesPerBeat').textContent = `1拍に含まれるフレーム数: ${framesPerBeat.toFixed(2)} フレーム`;
+      const width = canvas.width;
+      const height = canvas.height;
+      const scale = width / duration; // px/sec
 
-      if (!isNaN(frameNumber) && frameNumber >= 0) {
-        const timeAtFrame = frameNumber * frameMs;
-        const beatAtFrame = timeAtFrame / beatMs;
-        document.getElementById('frameToBeat').textContent =
-          `フレーム ${frameNumber} は約 ${beatAtFrame.toFixed(2)} 拍目`;
-      } else {
-        document.getElementById('frameToBeat').textContent = '';
+      const beatInterval = 60 / bpm; // 秒
+      const noteInterval = beatInterval / (division / 4); // 選択された音符の間隔
+      const frameInterval = 1 / fps;
+
+      // Draw baseline
+      ctx.strokeStyle = '#333';
+      ctx.beginPath();
+      ctx.moveTo(0, height / 2);
+      ctx.lineTo(width, height / 2);
+      ctx.stroke();
+
+      // Draw BPM marks (notes)
+      for (let t = 0; t < duration; t += noteInterval) {
+        const x = t * scale;
+        ctx.beginPath();
+        ctx.moveTo(x, height / 2 - 30);
+        ctx.lineTo(x, height / 2 - 10);
+        ctx.strokeStyle = '#4caf50';
+        ctx.stroke();
+
+        ctx.fillStyle = '#4caf50';
+        ctx.font = '12px sans-serif';
+        ctx.fillText(`${t.toFixed(2)}s`, x + 2, height / 2 - 35);
       }
 
-      document.getElementById('results').style.display = 'block';
+      // Draw FPS frame ticks
+      for (let t = 0; t < duration; t += frameInterval) {
+        const x = t * scale;
+        ctx.beginPath();
+        ctx.moveTo(x, height / 2 + 10);
+        ctx.lineTo(x, height / 2 + 30);
+        ctx.strokeStyle = '#2196f3';
+        ctx.stroke();
+      }
+
+      // Labels
+      ctx.fillStyle = '#4caf50';
+      ctx.fillText("BPMのタイミング（音符）", 10, 20);
+
+      ctx.fillStyle = '#2196f3';
+      ctx.fillText("FPSのタイミング（フレーム）", 10, height - 10);
     }
   </script>
 </body>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ポイント計算ツール＋景品リスト</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #000000;
+      --accent: #3498db;
+      --highlight: #d1ffd1;
+      --input-bg: #f8f8f8;
+    }
+
+    [data-theme="dark"] {
+      --bg: #1e1e1e;
+      --text: #ffffff;
+      --accent: #4aa3ff;
+      --highlight: #2e4e2e;
+      --input-bg: #333333;
+    }
+
+    [data-theme="light"] {
+      --bg: #ffffff;
+      --text: #000000;
+      --accent: #3498db;
+      --highlight: #d1ffd1;
+      --input-bg: #f8f8f8;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 20px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 10px;
+    }
+
+    select {
+      padding: 6px 10px;
+      font-size: 14px;
+      border-radius: 6px;
+      border: 1px solid #aaa;
+      background-color: var(--input-bg);
+      color: var(--text);
+    }
+
+    .container {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .calculator, .reward-list {
+      background-color: var(--input-bg);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      flex: 1 1 300px;
+      min-width: 280px;
+    }
+
+    .section {
+      margin-bottom: 20px;
+    }
+
+    input[type="number"], input[type="text"] {
+      padding: 10px;
+      font-size: 16px;
+      width: 100%;
+      box-sizing: border-box;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      background-color: var(--bg);
+      color: var(--text);
+    }
+
+    .buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      flex: 1;
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      background-color: var(--accent);
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .result {
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #ccc;
+    }
+
+    tr.highlight {
+      background-color: var(--highlight);
+    }
+
+    .small-btn {
+      padding: 4px 8px;
+      font-size: 14px;
+      margin-left: 5px;
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
+
+    .small-btn:hover {
+      background-color: #c0392b;
+    }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <label>
+      テーマ:
+      <select id="themeSelect">
+        <option value="auto">端末依存</option>
+        <option value="light">ライト</option>
+        <option value="dark">ダーク</option>
+      </select>
+    </label>
+  </div>
+
+  <h1>ポイント計算ツール</h1>
+  <div class="container">
+    <div class="calculator">
+      <div class="section">
+        <label for="points">ポイントを入力：</label>
+        <input type="number" id="points" value="0" min="0">
+      </div>
+
+      <div class="section">
+        <label>勝利数：<span id="wins">0</span></label>
+        <div class="buttons">
+          <button onclick="increaseWins()">＋1 勝</button>
+          <button onclick="resetWins()">リセット</button>
+        </div>
+      </div>
+
+      <div class="section result">
+        計算結果：<span id="result">0</span>
+      </div>
+    </div>
+
+    <div class="reward-list">
+      <h2>景品リスト</h2>
+      <table id="rewardTable">
+        <thead>
+          <tr>
+            <th>必要ポイント</th>
+            <th>景品名</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="number" class="reward-point" value="100"></td>
+            <td><input type="text" class="reward-name" value="サンプル景品"></td>
+            <td><button class="small-btn" onclick="removeRow(this)">削除</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <button style="margin-top: 10px;" onclick="addRow()">＋ 行を追加</button>
+    </div>
+  </div>
+
+  <script>
+    let wins = 0;
+    const pointsInput = document.getElementById('points');
+    const winsDisplay = document.getElementById('wins');
+    const resultDisplay = document.getElementById('result');
+    const rewardTable = document.getElementById('rewardTable').getElementsByTagName('tbody')[0];
+    const themeSelect = document.getElementById('themeSelect');
+
+    function calculateResult() {
+      const basePoints = parseFloat(pointsInput.value) || 0;
+      const result = basePoints * Math.pow(2, wins);
+      resultDisplay.textContent = result.toLocaleString();
+      updateRewardsHighlight(result);
+    }
+
+    function increaseWins() {
+      wins++;
+      winsDisplay.textContent = wins;
+      calculateResult();
+    }
+
+    function resetWins() {
+      wins = 0;
+      winsDisplay.textContent = wins;
+      calculateResult();
+    }
+
+    function addRow() {
+      const row = rewardTable.insertRow();
+      row.innerHTML = `
+        <td><input type="number" class="reward-point" value="0"></td>
+        <td><input type="text" class="reward-name" value=""></td>
+        <td><button class="small-btn" onclick="removeRow(this)">削除</button></td>
+      `;
+    }
+
+    function removeRow(button) {
+      const row = button.closest('tr');
+      row.remove();
+      calculateResult();
+    }
+
+    function updateRewardsHighlight(result) {
+      const rows = rewardTable.querySelectorAll('tr');
+      rows.forEach(row => {
+        const pointInput = row.querySelector('.reward-point');
+        if (!pointInput) return;
+
+        const requiredPoints = parseFloat(pointInput.value) || 0;
+        if (result >= requiredPoints && requiredPoints > 0) {
+          row.classList.add('highlight');
+        } else {
+          row.classList.remove('highlight');
+        }
+      });
+    }
+
+    function applyTheme(mode) {
+      const root = document.documentElement;
+      if (mode === 'auto') {
+        root.removeAttribute('data-theme');
+      } else {
+        root.setAttribute('data-theme', mode);
+      }
+    }
+
+    themeSelect.addEventListener('change', () => {
+      const selected = themeSelect.value;
+      localStorage.setItem('themeMode', selected);
+      applyTheme(selected);
+    });
+
+    // 初期化
+    (() => {
+      const saved = localStorage.getItem('themeMode') || 'auto';
+      themeSelect.value = saved;
+      applyTheme(saved);
+      calculateResult();
+    })();
+
+    pointsInput.addEventListener('input', calculateResult);
+    rewardTable.addEventListener('input', calculateResult);
+  </script>
+</body>
+</html>

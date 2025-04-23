@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>変換ツール</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #eee;
+      font-family: 'Segoe UI', sans-serif;
+      max-width: 700px;
+      margin: 50px auto;
+      padding: 20px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #00ffff;
+    }
+
+    textarea {
+      width: 100%;
+      height: 120px;
+      margin-bottom: 15px;
+      font-size: 16px;
+      background: #1e1e1e;
+      color: #eee;
+      border: 1px solid #333;
+      padding: 10px;
+      border-radius: 6px;
+    }
+
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      background-color: #00ffff;
+      border: none;
+      color: #000;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #00cccc;
+    }
+
+    .slider-container {
+      margin: 20px 0;
+    }
+
+    input[type="range"] {
+      width: 100%;
+    }
+
+    .result {
+      margin-top: 20px;
+      white-space: pre-wrap;
+      background: #1e1e1e;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #333;
+      font-size: 16px;
+    }
+
+    .flash {
+      animation: flashEffect 0.3s ease;
+    }
+
+    @keyframes flashEffect {
+      0% {
+        background-color: #00ffff44;
+      }
+      100% {
+        background-color: transparent;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>音ゲーのタイトルっぽくできちゃうやつ</h1>
+
+  <textarea id="inputText" placeholder="ここに元の文章を入力してください"></textarea>
+
+  <div class="slider-container">
+    <label for="intensity">変換度: <span id="intensityValue">100</span>%</label>
+    <input type="range" id="intensity" min="0" max="100" value="100" oninput="updateIntensity()">
+  </div>
+
+  <button onclick="convertText()">変換</button>
+
+  <div class="result" id="outputText"></div>
+
+  <script>
+    const conversionMap = {
+      A: ["@", "4", "Δ", "Λ", "V"],
+      B: ["8", "ß"],
+      C: ["K"],
+      D: ["▶︎", "Ð"],
+      E: ["3", "ε"],
+      F: ["ƒ"],
+      G: ["6", "9"],
+      H: ["#"],
+      I: ["1", "!"],
+      J: ["]"],
+      K: ["K"],
+      L: ["Γ"],
+      M: ["W"],
+      N: ["И"],
+      O: ["0", "θ"],
+      P: ["Ԁ", "¶"],
+      Q: ["Q"],
+      R: ["Я"],
+      S: ["5", "$"],
+      T: ["+"],
+      U: ["Ц"],
+      V: ["Λ"],
+      W: ["Ш", "vv"],
+      X: ["X"],
+      Y: ["γ"],
+      Z: ["2"],
+      a: ["@", "α"],
+      b: ["ß"],
+      c: ["ↄ"],
+      d: ["q"],
+      e: ["3"],
+      f: ["ƒ"],
+      g: ["9"],
+      h: ["#"],
+      i: ["1", "!"],
+      j: ["j"],
+      k: ["k"],
+      l: ["|", "1"],
+      m: ["m"],
+      n: ["∪"],
+      o: ["0"],
+      p: ["ρ"],
+      q: ["9"],
+      r: ["Я"],
+      s: ["$", "5", "z"],
+      t: ["+"],
+      u: ["∩"],
+      v: ["Λ"],
+      w: ["Ш"],
+      x: ["×", "><"],
+      y: ["γ"],
+      z: ["2", "s"],
+      0: ["O", "○"],
+      1: ["I", "l"],
+      2: ["Z"],
+      3: ["E"],
+      4: ["A"],
+      5: ["S"],
+      6: ["G"],
+      7: ["T"],
+      8: ["B"],
+      9: ["g"]
+    };
+
+    function updateIntensity() {
+      const val = document.getElementById("intensity").value;
+      document.getElementById("intensityValue").textContent = val;
+    }
+
+    function convertText() {
+      const input = document.getElementById("inputText").value;
+      const intensity = parseInt(document.getElementById("intensity").value, 10);
+      let result = "";
+
+      for (let char of input) {
+        const shouldConvert = Math.random() * 100 < intensity;
+        if (shouldConvert && conversionMap[char]) {
+          const replacements = conversionMap[char];
+          result += replacements[Math.floor(Math.random() * replacements.length)];
+        } else {
+          result += char;
+        }
+      }
+
+      const output = document.getElementById("outputText");
+      output.classList.remove("flash");
+      void output.offsetWidth; // force reflow
+      output.textContent = result;
+      output.classList.add("flash");
+    }
+  </script>
+</body>
+</html>

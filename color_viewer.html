@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>カラーコード表示ツール（名前付き・RGBスライダー付き）</title>
+<style>
+  body {
+    font-family: sans-serif;
+    max-width: 480px;
+    margin: 2rem auto;
+    padding: 1rem;
+  }
+  .input-area {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  input[type="text"] {
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+  }
+  #colorInput {
+    flex: 1.2;
+  }
+  #nameInput {
+    flex: 1;
+  }
+  button.add-btn {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  button.add-btn:hover {
+    background-color: #1d4ed8;
+  }
+  .rgb-sliders {
+    margin-bottom: 1rem;
+  }
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.3rem;
+  }
+  .slider-row label {
+    width: 20px;
+    font-weight: bold;
+  }
+  input[type="range"] {
+    flex: 1;
+  }
+  .slider-value {
+    width: 30px;
+    text-align: right;
+    font-size: 0.9rem;
+  }
+  .color-preview {
+    margin-top: 0.3rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  .preview-box {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid black;
+  }
+  .preview-code {
+    font-weight: 600;
+    font-size: 1rem;
+    user-select: text;
+  }
+  /* CSVボタン周り */
+  .csv-area {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  button.csv-btn {
+    background-color: #059669;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.4rem 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-size: 0.9rem;
+  }
+  button.csv-btn:hover {
+    background-color: #047857;
+  }
+  #csvFileInput {
+    display: none;
+  }
+  label.csv-load-label {
+    background-color: #059669;
+    color: white;
+    border-radius: 6px;
+    padding: 0.4rem 0.75rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    user-select: none;
+    display: inline-block;
+    transition: background-color 0.2s;
+  }
+  label.csv-load-label:hover {
+    background-color: #047857;
+  }
+  /* カラー表示グリッド */
+  .colors-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  .color-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .color-box {
+    position: relative;
+    height: 100px;
+    width: 100%;
+    border-radius: 16px;
+    border: 2px solid black;
+    box-sizing: border-box;
+  }
+  .remove-btn {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background-color: rgba(255 255 255 / 0.8);
+    border: none;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 1rem;
+    color: #dc2626;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .remove-btn:hover {
+    background-color: rgba(255 255 255 / 1);
+  }
+  .color-code {
+    margin-top: 0.5rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    user-select: text;
+    text-align: center;
+    word-break: break-word;
+  }
+</style>
+</head>
+<body>
+
+<div class="input-area">
+  <input type="text" id="colorInput" placeholder="カラーコード (#RRGGBB または RRGGBB)" />
+  <input type="text" id="nameInput" placeholder="名前（任意）" />
+  <button class="add-btn" id="addColorBtn">追加</button>
+</div>
+
+<div class="rgb-sliders">
+  <div class="slider-row">
+    <label for="rRange">R</label>
+    <input type="range" id="rRange" min="0" max="255" value="0" />
+    <div class="slider-value" id="rValue">0</div>
+  </div>
+  <div class="slider-row">
+    <label for="gRange">G</label>
+    <input type="range" id="gRange" min="0" max="255" value="0" />
+    <div class="slider-value" id="gValue">0</div>
+  </div>
+  <div class="slider-row">
+    <label for="bRange">B</label>
+    <input type="range" id="bRange" min="0" max="255" value="0" />
+    <div class="slider-value" id="bValue">0</div>
+  </div>
+  <div class="color-preview">
+    <div class="preview-box" id="colorPreview"></div>
+    <div class="preview-code" id="previewCode">#000000</div>
+  </div>
+</div>
+
+<div class="csv-area">
+  <button class="csv-btn" id="exportCsvBtn">CSV出力</button>
+  <label for="csvFileInput" class="csv-load-label" title="CSVファイルを選択して読み込み">
+    CSV読み込み
+  </label>
+  <input type="file" id="csvFileInput" accept=".csv,text/csv" />
+</div>
+
+<div class="colors-grid" id="colorsGrid"></div>
+
+<script>
+  (function(){
+    const input = document.getElementById('colorInput');
+    const nameInput = document.getElementById('nameInput');
+    const addBtn = document.getElementById('addColorBtn');
+    const grid = document.getElementById('colorsGrid');
+    const exportBtn = document.getElementById('exportCsvBtn');
+    const fileInput = document.getElementById('csvFileInput');
+
+    const rRange = document.getElementById('rRange');
+    const gRange = document.getElementById('gRange');
+    const bRange = document.getElementById('bRange');
+    const rValue = document.getElementById('rValue');
+    const gValue = document.getElementById('gValue');
+    const bValue = document.getElementById('bValue');
+    const colorPreview = document.getElementById('colorPreview');
+    const previewCode = document.getElementById('previewCode');
+
+    let colors = [];
+    // colorsは{name: string, code: string}の配列
+
+    // カラーコードの「#」がなくてもOK、必ず6桁の16進表現に変換して返すかnull
+    function normalizeColorCode(inputStr) {
+      let s = inputStr.trim().toLowerCase();
+      if (s.startsWith('#')) s = s.slice(1);
+      // 3桁なら6桁に展開
+      if (/^[0-9a-f]{3}$/.test(s)) {
+        s = s.split('').map(ch => ch + ch).join('');
+      }
+      if (/^[0-9a-f]{6}$/.test(s)) {
+        return '#' + s;
+      }
+      return null;
+    }
+
+    function toHex(n) {
+      return n.toString(16).padStart(2, '0');
+    }
+    function rgbToHex(r, g, b) {
+      return '#' + toHex(r) + toHex(g) + toHex(b);
+    }
+    function hexToRgb(hex) {
+      if (!hex) return null;
+      if (hex.startsWith('#')) hex = hex.slice(1);
+      if (hex.length === 3) {
+        hex = hex.split('').map(c => c + c).join('');
+      }
+      if (!/^[0-9a-f]{6}$/.test(hex)) return null;
+      return {
+        r: parseInt(hex.substr(0,2),16),
+        g: parseInt(hex.substr(2,2),16),
+        b: parseInt(hex.substr(4,2),16)
+      };
+    }
+
+    function updatePreviewFromSliders() {
+      const r = parseInt(rRange.value);
+      const g = parseInt(gRange.value);
+      const b = parseInt(bRange.value);
+
+      rValue.textContent = r;
+      gValue.textContent = g;
+      bValue.textContent = b;
+
+      const hex = rgbToHex(r,g,b);
+      previewCode.textContent = hex;
+      colorPreview.style.backgroundColor = hex;
+
+      input.value = hex;
+      // 名前欄は変えない（名前は任意で自由なので）
+    }
+
+    function updateSlidersFromInput() {
+      const val = input.value.trim();
+      const norm = normalizeColorCode(val);
+      if (!norm) return;
+      const rgb = hexToRgb(norm);
+      if (!rgb) return;
+      rRange.value = rgb.r;
+      gRange.value = rgb.g;
+      bRange.value = rgb.b;
+      rValue.textContent = rgb.r;
+      gValue.textContent = rgb.g;
+      bValue.textContent = rgb.b;
+      colorPreview.style.backgroundColor = norm;
+      previewCode.textContent = norm;
+    }
+
+    function addColor() {
+      let val = input.value.trim();
+      val = normalizeColorCode(val);
+      if (!val) {
+        alert('カラーコードは #RRGGBB または #RGB、またはRRGGBB/RGB形式で正しく入力してください。');
+        return;
+      }
+      const name = nameInput.value.trim();
+
+      colors.push({name: name, code: val});
+      input.value = '';
+      nameInput.value = '';
+      renderColors();
+
+      rRange.value = 0; gRange.value = 0; bRange.value = 0;
+      rValue.textContent = '0'; gValue.textContent = '0'; bValue.textContent = '0';
+      colorPreview.style.backgroundColor = '#000000';
+      previewCode.textContent = '#000000';
+    }
+
+    function removeColor(idx) {
+      colors.splice(idx, 1);
+      renderColors();
+    }
+
+    function renderColors() {
+      grid.innerHTML = '';
+      colors.forEach(({name, code}, i) => {
+        const item = document.createElement('div');
+        item.className = 'color-item';
+
+        const box = document.createElement('div');
+        box.className = 'color-box';
+        box.style.backgroundColor = code;
+
+        const btn = document.createElement('button');
+        btn.className = 'remove-btn';
+        btn.textContent = '✕';
+        btn.title = '削除';
+        btn.onclick = () => removeColor(i);
+
+        box.appendChild(btn);
+        item.appendChild(box);
+
+        const codeLabel = document.createElement('div');
+        codeLabel.className = 'color-code';
+        if(name) {
+          codeLabel.textContent = `${name} (${code})`;
+        } else {
+          codeLabel.textContent = code;
+        }
+        item.appendChild(codeLabel);
+
+        grid.appendChild(item);
+      });
+    }
+
+    function exportCsv() {
+      if (colors.length === 0) {
+        alert('色がありません。');
+        return;
+      }
+      // CSVは「名前,カラーコード」の形式で1行ずつ
+      // 名前にカンマがある場合は""で囲む
+      const lines = colors.map(({name, code}) => {
+        const safeName = name.includes(',') ? `"${name.replace(/"/g,'""')}"` : name;
+        return `${safeName},${code}`;
+      });
+      const csvContent = lines.join('\n') + '\n';
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'colors.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function importCsv(file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const text = e.target.result.trim();
+        if (!text) {
+          alert('CSVが空です。');
+          return;
+        }
+        const lines = text.split(/\r?\n/);
+        const newColors = [];
+        for(let line of lines){
+          // CSVの簡易パース、カンマ2個以上、改行など考慮は最小限
+          let [name, code] = parseCsvLine(line);
+          if(!code) {
+            // もしcodeが空でnameにカラーコードだけがある場合（名前なしのケース）対応
+            code = name;
+            name = '';
+          }
+          code = normalizeColorCode(code);
+          if(code){
+            newColors.push({name: name, code: code});
+          }
+        }
+        if(newColors.length === 0){
+          alert('有効なカラーコードがCSVに含まれていません。');
+          return;
+        }
+        colors = newColors;
+        renderColors();
+      };
+      reader.onerror = function() {
+        alert('ファイルの読み込みに失敗しました。');
+      };
+      reader.readAsText(file);
+    }
+
+    // 簡易CSV一行パース (名前にカンマや""対応)
+    function parseCsvLine(line) {
+      line = line.trim();
+      if(!line) return ["",""];
+      if(line.startsWith('"')){
+        // "で始まる場合名前が"..."で囲まれていると仮定
+        let endIdx = 1;
+        while(endIdx < line.length){
+          if(line[endIdx] === '"' && line[endIdx+1] !== '"') break;
+          if(line[endIdx] === '"' && line[endIdx+1] === '"'){
+            endIdx += 2; // ""は"として扱う
+          } else {
+            endIdx++;
+          }
+        }
+        const namePart = line.slice(1,endIdx).replace(/""/g,'"');
+        const rest = line.slice(endIdx+1).trim();
+        if(rest.startsWith(',')){
+          const codePart = rest.slice(1).trim();
+          return [namePart, codePart];
+        }
+        return [namePart, ""];
+      } else {
+        // カンマで区切り
+        const parts = line.split(',');
+        if(parts.length >= 2){
+          const code = parts.slice(1).join(',').trim();
+          return [parts[0].trim(), code];
+        } else {
+          return [line, ""];
+        }
+      }
+    }
+
+    addBtn.addEventListener('click', addColor);
+    input.addEventListener('keydown', e => {
+      if(e.key === 'Enter') addColor();
+    });
+    nameInput.addEventListener('keydown', e => {
+      if(e.key === 'Enter') addColor();
+    });
+    input.addEventListener('input', updateSlidersFromInput);
+    rRange.addEventListener('input', updatePreviewFromSliders);
+    gRange.addEventListener('input', updatePreviewFromSliders);
+    bRange.addEventListener('input', updatePreviewFromSliders);
+
+    exportBtn.addEventListener('click', exportCsv);
+    fileInput.addEventListener('change', e => {
+      if(e.target.files.length === 0) return;
+      importCsv(e.target.files[0]);
+      fileInput.value = '';
+    });
+
+    // 初期値セット
+    updatePreviewFromSliders();
+    renderColors();
+
+  })();
+</script>
+
+</body>
+</html>

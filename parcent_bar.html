@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ONEiRAの現在状況</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #363636;
+      margin: 20px;
+      color: #FFF;
+    }
+
+    .large {
+      background: #423873;
+      border: 2px solid #93b3e1;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .large-title {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+
+    .medium-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .medium {
+      background: #8e62a9;
+      border: 2px solid #93b3e1;
+      border-radius: 8px;
+      padding: 16px;
+      min-width: 250px;
+      flex: 1 1 250px;
+      text-align: center;
+    }
+
+    .medium-title {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .small {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 6px 0;
+    }
+
+    .small-label {
+      flex-shrink: 0;
+    }
+
+    .small-bar-group {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      margin-left: 10px;
+    }
+
+    .progress-bar-container {
+      position: relative;
+      flex: 1;
+      height: 12px;
+      background-color: #ddd;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s ease;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .progress-label {
+      position: absolute;
+      width: 100%;
+      text-align: center;
+      font-size: 0.75em;
+      color: #fff;
+      line-height: 12px;
+      z-index: 1;
+    }
+
+    .bar-container {
+      position: relative;
+      width: 60%;
+      height: 16px;
+      background-color: #ccc;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 0 auto 10px;
+    }
+
+    .bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .bar-label {
+      position: absolute;
+      width: 100%;
+      text-align: center;
+      font-size: 0.8em;
+      color: #fff;
+      line-height: 16px;
+      z-index: 1;
+    }
+
+    @media (max-width: 600px) {
+      .medium-container {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="progress-root"></div>
+
+  <script>
+    // JSON形式のデータ
+    const progressData = [
+      {
+        name: "ONEiRAゲーム部分",
+        mediumItems: [
+          {
+            name: "メイン部分(ノーツを叩く部分)",
+            smallItems: [
+              { name: "ノーツの動作", progress: 0 },
+              { name: "譜面の読み込み", progress: 0 },
+              { name: "譜面制作", progress: 0 }
+            ]
+          },
+          {
+            name: "メイン以外の部分",
+            smallItems: [
+              { name: "選曲画面", progress: 0 },
+              { name: "ストーリー画面", progress: 0 }
+            ]
+          },
+          {
+            name: "デザイン",
+            smallItems: [
+              { name: "ノーツ", progress: 0 },
+              { name: "メイン部分", progress: 0 },
+              { name: "選曲画面", progress: 0 },
+              { name: "ストーリー画面", progress: 0 }
+            ]
+          }
+        ]
+      },
+      {
+        name: "ONEiRA ストーリー関連",
+        mediumItems: [
+          {
+            name: "地理",
+            smallItems: [
+              { name: "世界地図", progress: 0 },
+              { name: "超広域地図", progress: 100 },
+              { name: "広域地図", progress: 0 },
+              { name: "国地図", progress: 0 },
+              { name: "詳細地図", progress: 0 },
+              { name: "植生", progress: 0 },
+              { name: "気候", progress: 0 }
+            ]
+          },
+          {
+            name: "文化",
+            smallItems: [
+              { name: "言語", progress: 5 },
+              { name: "宗教", progress: 0 },
+              { name: "風習", progress: 0 }
+            ]
+          },
+          {
+            name: "人物",
+            smallItems: [
+              { name: "???", progress: 3 }
+            ]
+          }
+        ]
+      }
+    ];
+
+    // 進捗に応じて色を生成（赤→黄→緑）
+    function getColor(progress) {
+      const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
+      progress = clamp(progress, 0, 100);
+
+      let r, g;
+      if (progress <= 50) {
+        // 赤(229,57,53) → 黄(251,192,45)
+        const ratio = progress / 50;
+        r = 229 + (251 - 229) * ratio;
+        g = 57 + (192 - 57) * ratio;
+        return `rgb(${r.toFixed(0)}, ${g.toFixed(0)}, 45)`;
+      } else {
+        // 黄(251,192,45) → 緑(67,160,71)
+        const ratio = (progress - 50) / 50;
+        r = 251 + (67 - 251) * ratio;
+        g = 192 + (160 - 192) * ratio;
+        const b = 45 + (71 - 45) * ratio;
+        return `rgb(${r.toFixed(0)}, ${g.toFixed(0)}, ${b.toFixed(0)})`;
+      }
+    }
+
+    function createProgressBars(data) {
+      const root = document.getElementById("progress-root");
+      root.innerHTML = '';
+
+      data.forEach(largeItem => {
+        const largeDiv = document.createElement("div");
+        largeDiv.className = "large";
+
+        const largeTitle = document.createElement("div");
+        largeTitle.className = "large-title";
+        largeTitle.textContent = largeItem.name;
+
+        const largeBarContainer = document.createElement("div");
+        largeBarContainer.className = "bar-container";
+        const largeBar = document.createElement("div");
+        largeBar.className = "bar";
+        const largeLabel = document.createElement("div");
+        largeLabel.className = "bar-label";
+        largeBarContainer.appendChild(largeBar);
+        largeBarContainer.appendChild(largeLabel);
+
+        largeDiv.appendChild(largeTitle);
+        largeDiv.appendChild(largeBarContainer);
+
+        const mediumContainer = document.createElement("div");
+        mediumContainer.className = "medium-container";
+
+        let largeTotal = 0;
+        let largeCount = 0;
+
+        largeItem.mediumItems.forEach(mediumItem => {
+          const mediumDiv = document.createElement("div");
+          mediumDiv.className = "medium";
+
+          const mediumTitle = document.createElement("div");
+          mediumTitle.className = "medium-title";
+          mediumTitle.textContent = mediumItem.name;
+
+          const mediumBarContainer = document.createElement("div");
+          mediumBarContainer.className = "bar-container";
+          const mediumBar = document.createElement("div");
+          mediumBar.className = "bar";
+          const mediumLabel = document.createElement("div");
+          mediumLabel.className = "bar-label";
+          mediumBarContainer.appendChild(mediumBar);
+          mediumBarContainer.appendChild(mediumLabel);
+
+          mediumDiv.appendChild(mediumTitle);
+          mediumDiv.appendChild(mediumBarContainer);
+
+          let mediumTotal = 0;
+          let mediumCount = 0;
+
+          mediumItem.smallItems.forEach(smallItem => {
+            const smallDiv = document.createElement("div");
+            smallDiv.className = "small";
+
+            const smallLabel = document.createElement("span");
+            smallLabel.className = "small-label";
+            smallLabel.textContent = smallItem.name;
+
+            const smallBarGroup = document.createElement("div");
+            smallBarGroup.className = "small-bar-group";
+
+            const smallBarContainer = document.createElement("div");
+            smallBarContainer.className = "progress-bar-container";
+
+            const smallBar = document.createElement("div");
+            smallBar.className = "progress-bar";
+            smallBar.style.width = `${smallItem.progress}%`;
+            smallBar.style.backgroundColor = getColor(smallItem.progress);
+
+            const smallLabelOverlay = document.createElement("div");
+            smallLabelOverlay.className = "progress-label";
+            smallLabelOverlay.textContent = `${smallItem.progress}%`;
+
+            smallBarContainer.appendChild(smallBar);
+            smallBarContainer.appendChild(smallLabelOverlay);
+
+            smallBarGroup.appendChild(smallBarContainer);
+
+            smallDiv.appendChild(smallLabel);
+            smallDiv.appendChild(smallBarGroup);
+            mediumDiv.appendChild(smallDiv);
+
+            mediumTotal += smallItem.progress;
+            mediumCount++;
+          });
+
+          const mediumAvg = mediumTotal / mediumCount;
+          mediumBar.style.width = `${mediumAvg}%`;
+          mediumBar.style.backgroundColor = getColor(mediumAvg);
+          mediumLabel.textContent = `${mediumAvg.toFixed(1)}%`;
+
+          largeTotal += mediumAvg;
+          largeCount++;
+
+          mediumContainer.appendChild(mediumDiv);
+        });
+
+        const largeAvg = largeTotal / largeCount;
+        largeBar.style.width = `${largeAvg}%`;
+        largeBar.style.backgroundColor = getColor(largeAvg);
+        largeLabel.textContent = `${largeAvg.toFixed(1)}%`;
+
+        largeDiv.appendChild(mediumContainer);
+        root.appendChild(largeDiv);
+      });
+    }
+
+    createProgressBars(progressData);
+  </script>
+</body>
+</html>

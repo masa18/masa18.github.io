@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ポイント計算機</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        .calculator-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        .result-group {
+            margin-top: 20px;
+            padding: 15px;
+            border: 2px dashed #007bff;
+            border-radius: 8px;
+            background-color: #eaf5ff;
+        }
+        .result-group p {
+            margin: 0;
+            color: #333;
+            font-size: 1.1em;
+            line-height: 1.5;
+        }
+        .result-group p strong {
+            color: #0056b3;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+
+<div class="calculator-container">
+    <h1>ガチャの回数とあまり計算機</h1>
+    <p style="text-align: center;">10回分のptで11回分回せる想定のみ対応しています</p>
+
+    <div class="input-group">
+        <label for="pointsPerUse">1回あたりのポイント</label>
+        <input type="number" id="pointsPerUse" min="1" value="1" oninput="calculatePoints()">
+    </div>
+
+    <div class="input-group">
+        <label for="receivedPoints">もらったポイント</label>
+        <input type="number" id="receivedPoints" min="0" value="0" oninput="calculatePoints()">
+    </div>
+
+    <div class="result-group">
+        <p>回す回数: <strong id="result1">0</strong>回</p>
+        <p>50連で回す回数: <strong id="result3">0</strong>回50連で回す</p>
+        <p>この数字分追加で回す: <strong id="result4">0</strong>回追加で回す</p>
+        <p>余りのpt: <strong id="result2">0</strong>pt</p>
+    </div>
+</div>
+
+<script>
+    function calculatePoints() {
+        const pointsPerUse = parseInt(document.getElementById('pointsPerUse').value, 10);
+        const receivedPoints = parseInt(document.getElementById('receivedPoints').value, 10);
+
+        if (isNaN(pointsPerUse) || isNaN(receivedPoints) || pointsPerUse <= 0) {
+            document.getElementById('result1').textContent = '0';
+            document.getElementById('result2').textContent = '0';
+            return;
+        }
+
+        // 計算式1: (もらったポイント//(1回あたりのポイント*10))*11+(もらったポイント%(1回あたりのポイント*10))//1回あたりのポイント
+        const result1 = Math.floor(receivedPoints / (pointsPerUse * 10)) * 11 + Math.floor((receivedPoints % (pointsPerUse * 10)) / pointsPerUse);
+
+        // 計算式2: (もらったポイント%(1回あたりのポイント*10))%1回あたりのポイント
+        const result2 = (receivedPoints % (pointsPerUse * 10)) % pointsPerUse;
+
+        const result3 = Math.floor(result1 / 50)
+        const result4 = result1 - result3 * 50
+
+        document.getElementById('result1').textContent = result1;
+        document.getElementById('result2').textContent = result2;
+    }
+
+    // ページロード時に初回計算を実行
+    window.onload = calculatePoints;
+</script>
+
+</body>
+</html>

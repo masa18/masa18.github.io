@@ -8,9 +8,10 @@
         body {
             font-family: sans-serif;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             background-color: #f0f0f0;
             margin: 0;
             padding: 20px;
@@ -20,13 +21,20 @@
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
+            max-width: 800px;
             width: 100%;
+            margin-bottom: 20px;
         }
         h1 {
             text-align: center;
             color: #333;
             margin-bottom: 20px;
+        }
+        p.info {
+            text-align: center;
+            color: #777;
+            font-size: 0.9em;
+            margin-bottom: 15px;
         }
         .input-group {
             margin-bottom: 15px;
@@ -37,7 +45,7 @@
             color: #555;
             font-weight: bold;
         }
-        input[type="number"] {
+        input[type="number"], input[type="text"] {
             width: 100%;
             padding: 10px;
             border: 1px solid #ccc;
@@ -62,13 +70,75 @@
             color: #0056b3;
             font-size: 1.2em;
         }
+        .button-group {
+            text-align: center;
+            margin-top: 20px;
+        }
+        #registerButton {
+            padding: 10px 20px;
+            font-size: 16px;
+            color: white;
+            background-color: #28a745;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        #registerButton:hover {
+            background-color: #218838;
+        }
+        .history-table-container {
+            width: 100%;
+            max-width: 800px;
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+        #historyTable {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        #historyTable th, #historyTable td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+            white-space: nowrap;
+        }
+        #historyTable th {
+            background-color: #f2f2f2;
+            color: #555;
+            font-weight: bold;
+        }
+        #historyTable tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .delete-button {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 0.9em;
+        }
+        .delete-button:hover {
+            background-color: #c82333;
+        }
     </style>
 </head>
 <body>
 
 <div class="calculator-container">
     <h1>ガチャの回数とあまり計算機</h1>
-    <p style="text-align: center;">10回分のptで11回分回せる想定のみ対応しています</p>
+    <p class="info">※10回分のptで11回分回せる想定のみ対応しています</p>
+
+    <div class="input-group">
+        <label for="userName">名前</label>
+        <input type="text" id="userName" placeholder="名前を入力してください">
+    </div>
 
     <div class="input-group">
         <label for="pointsPerUse">1回あたりのポイント</label>
@@ -82,10 +152,32 @@
 
     <div class="result-group">
         <p>回す回数: <strong id="result1">0</strong>回</p>
-        <p>50連で回す回数: <strong id="result3">0</strong>回50連で回す</p>
-        <p>この数字分追加で回す: <strong id="result4">0</strong>回追加で回す</p>
+        <p>50連で回す回数: <strong id="result3">0</strong>回</p>
+        <p>この数字分追加で回す: <strong id="result4">0</strong>回</p>
         <p>余りのpt: <strong id="result2">0</strong>pt</p>
     </div>
+
+    <div class="button-group">
+        <button id="registerButton" onclick="registerResult()">登録</button>
+    </div>
+</div>
+
+<div class="history-table-container">
+    <table id="historyTable">
+        <thead>
+            <tr>
+                <th>名前</th>
+                <th>投げたポイント</th>
+                <th>回す回数</th>
+                <th>50連で回す回数</th>
+                <th>追加で回す回数</th>
+                <th>余りのpt</th>
+                <th>削除</th>
+            </tr>
+        </thead>
+        <tbody>
+            </tbody>
+    </table>
 </div>
 
 <script>
@@ -96,25 +188,49 @@
         if (isNaN(pointsPerUse) || isNaN(receivedPoints) || pointsPerUse <= 0) {
             document.getElementById('result1').textContent = '0';
             document.getElementById('result2').textContent = '0';
+            document.getElementById('result3').textContent = '0';
+            document.getElementById('result4').textContent = '0';
             return;
         }
 
-        // 計算式1: (もらったポイント//(1回あたりのポイント*10))*11+(もらったポイント%(1回あたりのポイント*10))//1回あたりのポイント
-        const result1 = Math.floor(receivedPoints / (pointsPerUse * 10)) * 11 + Math.floor((receivedPoints % (pointsPerUse * 10)) / pointsPerUse);
+        const totalSpins = Math.floor(receivedPoints / (pointsPerUse * 10)) * 11 + Math.floor((receivedPoints % (pointsPerUse * 10)) / pointsPerUse);
+        const remainingPoints = (receivedPoints % (pointsPerUse * 10)) % pointsPerUse;
+        const fiftySpins = Math.floor(totalSpins / 50);
+        const additionalSpins = totalSpins % 50;
 
-        // 計算式2: (もらったポイント%(1回あたりのポイント*10))%1回あたりのポイント
-        const result2 = (receivedPoints % (pointsPerUse * 10)) % pointsPerUse;
-
-        const result3 = Math.floor(result1 / 50);
-        const result4 = result1 - result3 * 50;
-
-        document.getElementById('result1').textContent = result1;
-        document.getElementById('result2').textContent = result2;
-        document.getElementById('result3').textContent = result3;
-        document.getElementById('result4').textContent = result4;
+        document.getElementById('result1').textContent = totalSpins;
+        document.getElementById('result2').textContent = remainingPoints;
+        document.getElementById('result3').textContent = fiftySpins;
+        document.getElementById('result4').textContent = additionalSpins;
     }
 
-    // ページロード時に初回計算を実行
+    function registerResult() {
+        const userName = document.getElementById('userName').value || '名無し';
+        const receivedPoints = document.getElementById('receivedPoints').value;
+        const totalSpins = document.getElementById('result1').textContent;
+        const fiftySpins = document.getElementById('result3').textContent;
+        const additionalSpins = document.getElementById('result4').textContent;
+        const remainingPoints = document.getElementById('result2').textContent;
+        const historyTableBody = document.getElementById('historyTable').getElementsByTagName('tbody')[0];
+
+        const newRow = historyTableBody.insertRow();
+
+        newRow.innerHTML = `
+            <td>${userName}</td>
+            <td>${receivedPoints}pt</td>
+            <td>${totalSpins}回</td>
+            <td>${fiftySpins}回</td>
+            <td>${additionalSpins}回</td>
+            <td>${remainingPoints}pt</td>
+            <td><button class="delete-button" onclick="deleteRow(this)">削除</button></td>
+        `;
+    }
+
+    function deleteRow(buttonElement) {
+        const row = buttonElement.parentNode.parentNode;
+        row.remove();
+    }
+
     window.onload = calculatePoints;
 </script>
 

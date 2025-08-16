@@ -105,8 +105,8 @@
         // 計算式2: (もらったポイント%(1回あたりのポイント*10))%1回あたりのポイント
         const result2 = (receivedPoints % (pointsPerUse * 10)) % pointsPerUse;
 
-        const result3 = Math.floor(result1 / 50)
-        const result4 = result1 - result3 * 50
+        const result3 = Math.floor(result1 / 50);
+        const result4 = result1 - result3 * 50;
 
         document.getElementById('result1').textContent = result1;
         document.getElementById('result2').textContent = result2;

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>在庫管理・履歴機能付き抽選機</title>
+    <style>
+        body {
+            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+            background-color: #f4f4f9;
+        }
+        h1 { text-align: center; color: #333; }
+        
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .item-list {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .item-list th, .item-list td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+        .item-list th {
+            background-color: #eee;
+            color: #555;
+        }
+        
+        input[type="text"], input[type="number"] {
+            width: 90%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        input.zero-stock {
+            background-color: #ffdddd;
+            color: #a00;
+        }
+
+        button {
+            cursor: pointer;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: opacity 0.2s;
+        }
+        button:hover { opacity: 0.8; }
+        
+        .btn-add { background-color: #4CAF50; color: white; }
+        .btn-remove { background-color: #f44336; color: white; padding: 6px 12px; }
+        
+        .action-area {
+            background-color: #e3f2fd;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .user-input {
+            width: 60% !important;
+            padding: 12px !important;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        .btn-spin { 
+            background-color: #2196F3; 
+            color: white; 
+            font-size: 1.2em; 
+            width: 100%; 
+            padding: 15px;
+            margin-top: 10px;
+        }
+
+        #result-area {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #333;
+            min-height: 1.2em;
+            border: 2px dashed #bbb;
+            background: #fff;
+            border-radius: 8px;
+        }
+
+        .history-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 300px;
+            overflow-y: auto;
+            border-top: 1px solid #eee;
+        }
+        .history-list li {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+        .history-list li:nth-child(even) {
+            background-color: #fafafa;
+        }
+        .history-time { color: #888; font-size: 0.9em; margin-right: 10px; }
+        .history-user { font-weight: bold; color: #0066cc; margin-right: 10px; }
+        .history-item { font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <h1>品目管理のできるガチャ</h1>
+
+    <div class="card">
+        <h3>景品リスト</h3>
+        <table class="item-list" id="itemTable">
+            <thead>
+                <tr>
+                    <th>品目名</th>
+                    <th style="width: 80px;">個数</th>
+                    <th style="width: 80px;">排出割合</th>
+                    <th style="width: 50px;">削除</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <tr>
+                    <td><input type="text" value="うちわ" class="item-name"></td>
+                    <td><input type="number" value="8" min="0" class="item-count"></td>
+                    <td><input type="number" value="1" min="0" class="item-weight"></td>
+                    <td><button class="btn-remove" onclick="removeRow(this)">×</button></td>
+                </tr>
+            </tbody>
+        </table>
+        <button class="btn-add" onclick="addRow()">＋ 品目を追加</button>
+    </div>
+
+    <div class="card action-area">
+        <input type="text" id="username" class="user-input" placeholder="回すリスナー名を入力してください(履歴に追加されます)">
+        <button class="btn-spin" id="spinBtn" onclick="spin()">回す</button>
+    </div>
+
+    <div id="result-area">結果待ち...</div>
+
+    <div class="card">
+        <h3>抽選履歴</h3>
+        <ul id="historyList" class="history-list">
+            <li style="color: #999; text-align: center;">まだ履歴はありません</li>
+        </ul>
+    </div>
+
+    <script>
+        function addRow() {
+            const tbody = document.getElementById('tableBody');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><input type="text" value="" placeholder="品目名" class="item-name"></td>
+                <td><input type="number" value="1" min="0" class="item-count"></td>
+                <td><input type="number" value="1" min="0" class="item-weight"></td>
+                <td><button class="btn-remove" onclick="removeRow(this)">×</button></td>
+            `;
+            tbody.appendChild(row);
+        }
+
+        function removeRow(btn) {
+            btn.closest('tr').remove();
+        }
+
+        function addToHistory(username, itemName) {
+            const historyList = document.getElementById('historyList');
+            
+            if (historyList.children.length > 0 && historyList.children[0].innerText === 'まだ履歴はありません') {
+                historyList.innerHTML = '';
+            }
+
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <span>
+                    <span class="history-time">${timeString}</span>
+                    <span class="history-user">${username}</span>
+                </span>
+                <span class="history-item">${itemName}</span>
+            `;
+            
+            historyList.prepend(li);
+        }
+
+        function spin() {
+            const resultArea = document.getElementById('result-area');
+            const usernameInput = document.getElementById('username');
+            const username = usernameInput.value.trim() || '名無し';
+
+            const rows = Array.from(document.querySelectorAll('#tableBody tr'));
+            let candidates = [];
+            let totalWeight = 0;
+
+            rows.forEach(row => {
+                const nameInput = row.querySelector('.item-name');
+                const countInput = row.querySelector('.item-count');
+                const weightInput = row.querySelector('.item-weight');
+
+                const name = nameInput.value;
+                const count = parseInt(countInput.value, 10);
+                const weight = parseFloat(weightInput.value);
+
+                if (count > 0 && weight > 0) {
+                    candidates.push({
+                        name: name,
+                        weight: weight,
+                        inputElement: countInput,
+                        nameInputElement: nameInput
+                    });
+                    totalWeight += weight;
+                } else if (count <= 0) {
+                    countInput.classList.add('zero-stock');
+                    nameInput.classList.add('zero-stock');
+                }
+            });
+
+            if (candidates.length === 0) {
+                resultArea.innerText = "すべての在庫がなくなりました！";
+                resultArea.style.color = "red";
+                return;
+            }
+
+            let random = Math.random() * totalWeight;
+            let selectedItem = null;
+
+            for (const item of candidates) {
+                if (random < item.weight) {
+                    selectedItem = item;
+                    break;
+                }
+                random -= item.weight;
+            }
+            if (!selectedItem) selectedItem = candidates[candidates.length - 1];
+
+            const newCount = parseInt(selectedItem.inputElement.value) - 1;
+            selectedItem.inputElement.value = newCount;
+            
+            if (newCount === 0) {
+                selectedItem.inputElement.classList.add('zero-stock');
+                selectedItem.nameInputElement.classList.add('zero-stock');
+            }
+
+            resultArea.innerText = selectedItem.name;
+            resultArea.style.color = "#333";
+
+            addToHistory(username, selectedItem.name);
+        }
+    </script>
+</body>
+</html>

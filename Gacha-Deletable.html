@@ -6,7 +6,7 @@
     <title>在庫管理・履歴機能付き抽選機</title>
     <style>
         body {
-            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+            font-family: "Helvetica Neue", Arial, sans-serif;
             max-width: 800px;
             margin: 20px auto;
             padding: 0 20px;
@@ -32,10 +32,7 @@
             border-bottom: 1px solid #ddd;
             text-align: left;
         }
-        .item-list th {
-            background-color: #eee;
-            color: #555;
-        }
+        .item-list th { background-color: #eee; color: #555; }
         
         input[type="text"], input[type="number"] {
             width: 90%;
@@ -58,9 +55,11 @@
             transition: opacity 0.2s;
         }
         button:hover { opacity: 0.8; }
+        button:disabled { background-color: #ccc !important; cursor: not-allowed; }
         
         .btn-add { background-color: #4CAF50; color: white; }
         .btn-remove { background-color: #f44336; color: white; padding: 6px 12px; }
+        .btn-reset { background-color: #607d8b; color: white; float: right; font-size: 0.8em;}
         
         .action-area {
             background-color: #e3f2fd;
@@ -72,7 +71,6 @@
             width: 60% !important;
             padding: 12px !important;
             font-size: 1.1em;
-            margin-bottom: 10px;
         }
         .btn-spin { 
             background-color: #2196F3; 
@@ -94,6 +92,11 @@
             border: 2px dashed #bbb;
             background: #fff;
             border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+        .result-highlight {
+            background-color: #fff9c4 !important;
+            transform: scale(1.05);
         }
 
         .history-list {
@@ -110,9 +113,7 @@
             display: flex;
             justify-content: space-between;
         }
-        .history-list li:nth-child(even) {
-            background-color: #fafafa;
-        }
+        .history-list li:nth-child(even) { background-color: #fafafa; }
         .history-time { color: #888; font-size: 0.9em; margin-right: 10px; }
         .history-user { font-weight: bold; color: #0066cc; margin-right: 10px; }
         .history-item { font-weight: bold; }
@@ -123,8 +124,11 @@
     <h1>品目管理のできるガチャ</h1>
 
     <div class="card">
-        <h3>景品リスト</h3>
-        <table class="item-list" id="itemTable">
+        <h3>
+            景品リスト
+            <button class="btn-reset" onclick="resetData()">⚠ データ初期化</button>
+        </h3>
+        <table class="item-list">
             <thead>
                 <tr>
                     <th>品目名</th>
@@ -134,67 +138,16 @@
                 </tr>
             </thead>
             <tbody id="tableBody">
-                <tr>
-                    <td><input type="text" value="うちわ" class="item-name"></td>
-                    <td><input type="number" value="8" min="0" class="item-count"></td>
-                    <td><input type="number" value="20" min="0" class="item-weight"></td>
-                    <td><button class="btn-remove" onclick="removeRow(this)">×</button></td>
-                </tr>
-                <tr>
-                    <td><input type="text" value="クリアファイル(ピンク)" class="item-name"></td>
-                    <td><input type="number" value="1" min="0" class="item-count"></td>
-                    <td><input type="number" value="1" min="0" class="item-weight"></td>
-                    <td><button class="btn-remove" onclick="removeRow(this)">×</button></td>
-                </tr>
-                <tr>
-                    <td><input type="text" value="クリアファイル(水色)" class="item-name"></td>
-                    <td><input type="number" value="2" min="0" class="item-count"></td>
-                    <td><input type="number" value="1" min="0" class="item-weight"></td>
-                    <td><button class="btn-remove" onclick="removeRow(this)">×</button></td>
-                </tr>
-                <tr>
-                    <td><input type="text" value="クッションキーホルダー" class="item-name"></td>
-                    <td><input type="number" value="5" min="0" class="item-count"></td>
-                    <td><input type="number" value="20" min="0" class="item-weight"></td>
-                    <td><button class="btn-remove" onclick="removeRow(this)">×</button></td>
-                </tr>
-                <tr>
-                    <td><input type="text" value="缶バッチ1" class="item-name"></td>
-                    <td><input type="number" value="8" min="0" class="item-count"></td>
-                    <td><input type="number" value="50" min="0" class="item-weight"></td>
-                    <td><button class="btn-remove" onclick="removeRow(this)">×</button></td>
-                </tr>
-                <tr>
-                    <td><input type="text" value="缶バッチ2" class="item-name"></td>
-                    <td><input type="number" value="8" min="0" class="item-count"></td>
-                    <td><input type="number" value="50" min="0" class="item-weight"></td>
-                    <td><button class="btn-remove" onclick="removeRow(this)">×</button></td>
-                </tr>
-                <tr>
-                    <td><input type="text" value="缶バッチ3" class="item-name"></td>
-                    <td><input type="number" value="8" min="0" class="item-count"></td>
-                    <td><input type="number" value="50" min="0" class="item-weight"></td>
-                    <td><button class="btn-remove" onclick="removeRow(this)">×</button></td>
-                </tr>
-                <tr>
-                    <td><input type="text" value="缶バッチ4" class="item-name"></td>
-                    <td><input type="number" value="9" min="0" class="item-count"></td>
-                    <td><input type="number" value="50" min="0" class="item-weight"></td>
-                    <td><button class="btn-remove" onclick="removeRow(this)">×</button></td>
-                </tr>
-                <tr>
-                    <td><input type="text" value="ハンカチ" class="item-name"></td>
-                    <td><input type="number" value="1" min="0" class="item-count"></td>
-                    <td><input type="number" value="1" min="0" class="item-weight"></td>
-                    <td><button class="btn-remove" onclick="removeRow(this)">×</button></td>
-                </tr>
-            </tbody>
+                </tbody>
         </table>
         <button class="btn-add" onclick="addRow()">＋ 品目を追加</button>
     </div>
 
     <div class="card action-area">
-        <input type="text" id="username" class="user-input" placeholder="回すリスナー名を入力してください(履歴に追加されます)">
+        <input type="text" id="username" class="user-input" placeholder="回すリスナー名を入力してください">
+        <div style="margin-top: 10px;">
+            <label>回数: <input type="number" id="spinCount" value="1" min="1" style="padding: 8px; width: 60px; font-size: 1.1em; border-radius: 4px; border: 1px solid #ccc;"></label>
+        </div>
         <button class="btn-spin" id="spinBtn" onclick="spin()">回す</button>
     </div>
 
@@ -208,26 +161,128 @@
     </div>
 
     <script>
-        function addRow() {
+        // バージョンをv2に変更（新しい初期データを読み込ませるため）
+        const STORAGE_KEY = 'gacha_data_v2';
+
+        window.onload = function() {
+            loadData();
+        };
+
+        // --- データ保存・読み込み機能 ---
+
+        function saveData() {
+            const rows = Array.from(document.querySelectorAll('#tableBody tr'));
+            const items = rows.map(row => {
+                return {
+                    name: row.querySelector('.item-name').value,
+                    count: row.querySelector('.item-count').value,
+                    weight: row.querySelector('.item-weight').value
+                };
+            });
+
+            const historyList = document.getElementById('historyList');
+            const historyItems = Array.from(historyList.children).map(li => li.innerHTML);
+
+            const data = {
+                items: items,
+                history: historyItems
+            };
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+
+        function loadData() {
+            const json = localStorage.getItem(STORAGE_KEY);
+            const tbody = document.getElementById('tableBody');
+            const historyList = document.getElementById('historyList');
+
+            if (json) {
+                // 保存データがある場合
+                const data = JSON.parse(json);
+                
+                tbody.innerHTML = '';
+                if (data.items.length > 0) {
+                    data.items.forEach(item => addRow(item.name, item.count, item.weight, false));
+                }
+
+                if (data.history && data.history.length > 0) {
+                    historyList.innerHTML = '';
+                    data.history.forEach(html => {
+                        const li = document.createElement('li');
+                        li.innerHTML = html;
+                        historyList.appendChild(li);
+                    });
+                }
+            } else {
+                // --- 初回起動時（データがない場合）の初期セット ---
+                
+                // 指定された品目を追加
+                addRow("うちわ", 8, 20, false);
+                addRow("クリアファイル(ピンク)", 1, 1, false);
+                addRow("クリアファイル(水色)", 2, 1, false);
+                addRow("クッションキーホルダー", 5, 20, false);
+                addRow("缶バッチ1", 8, 50, false);
+                addRow("缶バッチ2", 8, 50, false);
+                addRow("缶バッチ3", 8, 50, false);
+                addRow("缶バッチ4", 9, 50, false);
+                addRow("ハンカチ", 1, 1, false);
+
+                // 指定された履歴を追加 (保存フラグtrue)
+                addToHistory("朧箱", "缶バッチ2");
+                addToHistory("朧箱", "缶バッチ3");
+            }
+            checkZeroStocks();
+        }
+
+        function resetData() {
+            if(confirm('現在のデータを消去して、初期設定（朧箱さんの履歴含む）に戻しますか？')) {
+                localStorage.removeItem(STORAGE_KEY);
+                location.reload();
+            }
+        }
+
+        // --- テーブル操作機能 ---
+
+        // saveFlag引数を追加（大量に追加する時の負荷軽減と二重保存防止）
+        function addRow(name = "", count = 1, weight = 1, saveFlag = true) {
             const tbody = document.getElementById('tableBody');
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td><input type="text" value="" placeholder="品目名" class="item-name"></td>
-                <td><input type="number" value="1" min="0" class="item-count"></td>
-                <td><input type="number" value="1" min="0" class="item-weight"></td>
+                <td><input type="text" value="${name}" placeholder="品目名" class="item-name" onchange="saveData()"></td>
+                <td><input type="number" value="${count}" min="0" class="item-count" onchange="saveData(); checkZeroStocks();"></td>
+                <td><input type="number" value="${weight}" min="0" class="item-weight" onchange="saveData()"></td>
                 <td><button class="btn-remove" onclick="removeRow(this)">×</button></td>
             `;
             tbody.appendChild(row);
+            if (saveFlag) saveData();
         }
 
         function removeRow(btn) {
             btn.closest('tr').remove();
+            saveData();
         }
+
+        function checkZeroStocks() {
+            const rows = document.querySelectorAll('#tableBody tr');
+            rows.forEach(row => {
+                const countInput = row.querySelector('.item-count');
+                const nameInput = row.querySelector('.item-name');
+                if (parseInt(countInput.value) <= 0) {
+                    countInput.classList.add('zero-stock');
+                    nameInput.classList.add('zero-stock');
+                } else {
+                    countInput.classList.remove('zero-stock');
+                    nameInput.classList.remove('zero-stock');
+                }
+            });
+        }
+
+        // --- 抽選・履歴機能 ---
 
         function addToHistory(username, itemName) {
             const historyList = document.getElementById('historyList');
             
-            if (historyList.children.length > 0 && historyList.children[0].innerText === 'まだ履歴はありません') {
+            if (historyList.children.length > 0 && historyList.children[0].innerText.includes('履歴はありません')) {
                 historyList.innerHTML = '';
             }
 
@@ -243,71 +298,95 @@
                 <span class="history-item">${itemName}</span>
             `;
             
+            // 最新が上に来るように追加
             historyList.prepend(li);
+            saveData(); 
         }
 
-        function spin() {
+        const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+        async function spin() {
             const resultArea = document.getElementById('result-area');
+            const spinBtn = document.getElementById('spinBtn');
             const usernameInput = document.getElementById('username');
+            const countInput = document.getElementById('spinCount');
+            
             const username = usernameInput.value.trim() || '名無し';
+            let loopCount = parseInt(countInput.value, 10);
+            if (isNaN(loopCount) || loopCount < 1) loopCount = 1;
 
-            const rows = Array.from(document.querySelectorAll('#tableBody tr'));
-            let candidates = [];
-            let totalWeight = 0;
+            spinBtn.disabled = true;
+            spinBtn.innerText = "抽選中...";
 
-            rows.forEach(row => {
-                const nameInput = row.querySelector('.item-name');
-                const countInput = row.querySelector('.item-count');
-                const weightInput = row.querySelector('.item-weight');
+            for (let i = 0; i < loopCount; i++) {
+                const rows = Array.from(document.querySelectorAll('#tableBody tr'));
+                let candidates = [];
+                let totalWeight = 0;
 
-                const name = nameInput.value;
-                const count = parseInt(countInput.value, 10);
-                const weight = parseFloat(weightInput.value);
+                rows.forEach(row => {
+                    const nameInput = row.querySelector('.item-name');
+                    const countInput = row.querySelector('.item-count');
+                    const weightInput = row.querySelector('.item-weight');
 
-                if (count > 0 && weight > 0) {
-                    candidates.push({
-                        name: name,
-                        weight: weight,
-                        inputElement: countInput,
-                        nameInputElement: nameInput
-                    });
-                    totalWeight += weight;
-                } else if (count <= 0) {
-                    countInput.classList.add('zero-stock');
-                    nameInput.classList.add('zero-stock');
-                }
-            });
+                    const name = nameInput.value;
+                    const count = parseInt(countInput.value, 10);
+                    const weight = parseFloat(weightInput.value);
 
-            if (candidates.length === 0) {
-                resultArea.innerText = "すべての在庫がなくなりました！";
-                resultArea.style.color = "red";
-                return;
-            }
+                    if (count > 0 && weight > 0) {
+                        candidates.push({
+                            name: name,
+                            weight: weight,
+                            inputElement: countInput,
+                            nameInputElement: nameInput
+                        });
+                        totalWeight += weight;
+                    }
+                });
 
-            let random = Math.random() * totalWeight;
-            let selectedItem = null;
-
-            for (const item of candidates) {
-                if (random < item.weight) {
-                    selectedItem = item;
+                if (candidates.length === 0) {
+                    resultArea.innerText = "在庫がなくなりました！";
+                    resultArea.style.color = "red";
                     break;
                 }
-                random -= item.weight;
+
+                let random = Math.random() * totalWeight;
+                let selectedItem = null;
+                for (const item of candidates) {
+                    if (random < item.weight) {
+                        selectedItem = item;
+                        break;
+                    }
+                    random -= item.weight;
+                }
+                if (!selectedItem) selectedItem = candidates[candidates.length - 1];
+
+                // 結果表示
+                resultArea.style.opacity = 0;
+                await sleep(100); 
+                
+                resultArea.innerText = `${i + 1}回目: ${selectedItem.name}`;
+                resultArea.style.color = "#333";
+                resultArea.style.opacity = 1;
+                resultArea.classList.add('result-highlight');
+                
+                setTimeout(() => resultArea.classList.remove('result-highlight'), 300);
+
+                // 在庫減算
+                const newCount = parseInt(selectedItem.inputElement.value) - 1;
+                selectedItem.inputElement.value = newCount;
+                checkZeroStocks();
+                saveData();
+
+                // 履歴追加
+                addToHistory(username, selectedItem.name);
+
+                if (i < loopCount - 1) {
+                    await sleep(1500);
+                }
             }
-            if (!selectedItem) selectedItem = candidates[candidates.length - 1];
 
-            const newCount = parseInt(selectedItem.inputElement.value) - 1;
-            selectedItem.inputElement.value = newCount;
-            
-            if (newCount === 0) {
-                selectedItem.inputElement.classList.add('zero-stock');
-                selectedItem.nameInputElement.classList.add('zero-stock');
-            }
-
-            resultArea.innerText = selectedItem.name;
-            resultArea.style.color = "#333";
-
-            addToHistory(username, selectedItem.name);
+            spinBtn.disabled = false;
+            spinBtn.innerText = "回す";
         }
     </script>
 </body>
